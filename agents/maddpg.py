@@ -21,7 +21,7 @@ class MADDPG:
         actions = np.zeros((self.num_agents, self.action_size))
         for i in range(self.config.num_agents):
             agent = self.maddpg_agent[i]
-            obs = obs_all_agents[:,i*24:(i*24 + 24)]
+            obs = obs_all_agents[:,i*self.state_size:(i*self.state_size + self.state_size)]
             actions[i,:] = agent.act(obs, add_noise, noise_decay)
             
         return actions
