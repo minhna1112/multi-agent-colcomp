@@ -36,13 +36,13 @@ Follow the instructions in `Tennis.ipynb` to get started with training your own 
 4.  Re-run every cells in [Tennis.ipynb](Tennis.ipynb)
 
 ### Solution!!!
-Below is my solution for the Tennis task, applying Multi-Agent Deep Deterministic Policy Gradient (MA-DDPG) [[1]][#1].
+Below is my solution for the Tennis task, applying Multi-Agent Deep Deterministic Policy Gradient (MA-DDPG) [[1]](#1).
 There will be 2 agents playing tennis, competing against each other.
-Both of them are trained using DDPG paradigm [[2]][#2], involving the usage of 2 neural networks: actor who outputs action based on observations and a critic that rates the actions of actor.
+Both of them are trained using DDPG paradigm [[2]](#2), involving the usage of 2 neural networks: actor who outputs action based on observations and a critic that rates the actions of actor.
 The observation space and action space are the same for both actors, with each state vector has a shape of  `[1,24]`  and an action vector of size `[1,2]`.
 
 #### Baseline
-1. I use the MA-DDPG base pipeline from [Anh-BK](https://github.com/Anh-BK/drl_collaboration-competition)'s work [[3]][#3]. The original code used TensorboardX for visualization. As promised in the 2 last projects, this time, I tried integrate wandb into the training flow.
+1. I use the MA-DDPG base pipeline from [Anh-BK](https://github.com/Anh-BK/drl_collaboration-competition)'s work [[3]](#3). The original code used TensorboardX for visualization. As promised in the 2 last projects, this time, I tried integrate wandb into the training flow.
 2. The project is structured as follows:
 - The [agents](agents) folder is used to store the implementations of `DDPG` and `MA-DDPG`
 - Each [`DDPGAgent`](agents/ddpg.py) comprises of 2 neural networks: an actor and a critic, with their hyper parameters could be easily configured during initialization.
@@ -61,7 +61,7 @@ The observation space and action space are the same for both actors, with each s
 More details about the metrics logged during training the 2 exps could be found [here](https://api.wandb.ai/links/minhna1112/fe4lxm3s)
 
 ### Future plan
-I want to scale this work over the `Football` challenge, in which the number of agents in the environment increase significantly. That will be my chance to experiment with more sophisticated algorithm such as TarMAC [[4]][#4] 
+I want to scale this work over the `Football` challenge, in which the number of agents in the environment increase significantly. That will be my chance to experiment with more sophisticated algorithm such as TarMAC [[4]](#4)
 
 ### References
 [1] [MADDPG original paper](https://arxiv.org/abs/1706.02275)
