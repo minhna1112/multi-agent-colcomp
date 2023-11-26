@@ -1,0 +1,14 @@
+Pillow>=4.2.1
+matplotlib
+numpy>=1.11.0
+jupyter
+pytest>=3.2.2
+docopt
+pyyaml
+wandb
+protobuf==3.20.3
+grpcio==1.53.0
+torch==2.0.0
+pandas
+scipy
+ipykernel
