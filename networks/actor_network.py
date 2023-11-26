@@ -15,7 +15,7 @@ class ActorNN(nn.Module):
         super(ActorNN, self).__init__()
         self.seed = torch.manual_seed(seed)
         hidden_nodes = 128
-        self.num_layers = 2
+        self.num_layers = 3
 
         self.hidden_layers = nn.ModuleList([nn.Linear(input_size, hidden_nodes)])
         self.bn_layers = nn.ModuleList([nn.BatchNorm1d(num_features=hidden_nodes)])
