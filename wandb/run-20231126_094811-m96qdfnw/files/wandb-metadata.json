@@ -1,0 +1,145 @@
+{
+    "os": "Linux-5.15.0-69-generic-x86_64-with-glibc2.31",
+    "python": "3.9.16",
+    "heartbeatAt": "2023-11-26T02:48:13.120244",
+    "startedAt": "2023-11-26T02:48:11.639922",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/minhna4lab/minhna1112/study/RL/deep-reinforcement-learning/drl_collaboration-competition/main_wandb.py",
+    "codePath": "main_wandb.py",
+    "git": {
+        "remote": "https://github.com/Anh-BK/drl_collaboration-competition",
+        "commit": "758684183acd5ef6e484c371fcb75a75ac9c660a"
+    },
+    "email": "minhna4@fpt.com",
+    "root": "/home/minhna4lab/minhna1112/study/RL/deep-reinforcement-learning/drl_collaboration-competition",
+    "host": "LPT00256548C",
+    "username": "minhna4lab",
+    "executable": "/home/minhna4lab/.conda/envs/cuda116/bin/python3",
+    "cpu_count": 14,
+    "cpu_count_logical": 20,
+    "cpu_freq": {
+        "current": 2.4922500000000007,
+        "min": 400.0,
+        "max": 4180.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4700.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4700.0
+        },
+        {
+            "current": 1.41,
+            "min": 400.0,
+            "max": 4700.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4700.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 1.414,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 4600.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 1.461,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 1.565,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 3500.0
+        },
+        {
+            "current": 2.7,
+            "min": 400.0,
+            "max": 3500.0
+        }
+    ],
+    "disk": {
+        "total": 613.200553894043,
+        "used": 240.60429763793945
+    },
+    "gpu": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+            "memory_total": 8370061312
+        }
+    ],
+    "memory": {
+        "total": 15.297855377197266
+    }
+}

@@ -1,0 +1,29 @@
+
+Episodes 0000-0010	Max Reward: 0.000	Moving Average: 0.000	Noise decay: 0.500
+Traceback (most recent call last):
+  File "/home/minhna4lab/minhna1112/study/RL/deep-reinforcement-learning/drl_collaboration-competition/main_wandb.py", line 131, in <module>
+    main()
+  File "/home/minhna4lab/minhna1112/study/RL/deep-reinforcement-learning/drl_collaboration-competition/main_wandb.py", line 84, in main
+    maddpg.update(a_i, samples, None)  # Removed logger from update function
+  File "/home/minhna4lab/minhna1112/study/RL/deep-reinforcement-learning/drl_collaboration-competition/agents/maddpg.py", line 76, in update
+    wandb.log(f'agent-{agent_i}/losses',
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 370, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 333, in wrapper
+    return func(self, *args, **kwargs)
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1714, in log
+    self._log(data=data, step=step, commit=commit)
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/site-packages/wandb/sdk/wandb_run.py", line 1491, in _log
+    raise ValueError("wandb.log must be passed a dictionary")
+ValueError: wandb.log must be passed a dictionary
+Exception ignored in: <module 'threading' from '/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/threading.py'>
+Traceback (most recent call last):
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/threading.py", line 1447, in _shutdown
+    atexit_call()
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/concurrent/futures/thread.py", line 31, in _python_exit
+    t.join()
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/threading.py", line 1060, in join
+    self._wait_for_tstate_lock()
+  File "/home/minhna4lab/.conda/envs/cuda116/lib/python3.9/threading.py", line 1080, in _wait_for_tstate_lock
+    if lock.acquire(block, timeout):
+KeyboardInterrupt:
