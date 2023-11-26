@@ -6,8 +6,8 @@ import random
 from collections import deque
 
 import torch
-from tensorboardX import SummaryWriter
 import numpy as np
+import wandb  # Import wandb
 
 from unityagents import UnityEnvironment
 from utils import Config, ReplayBuffer
@@ -53,10 +53,11 @@ def main():
     PRINT_EVERY = 10
     SOLVED_SCORE = 0.5
 
-    log_path = os.getcwd()+"/log"
+    # Initialize wandb run
+    wandb.init(project="tennis-maddpg", entity="minhna1112")  # Replace 'your_username' with your wandb username
+
     model_dir= os.getcwd()+"/model_dir"
     os.makedirs(model_dir, exist_ok=True)
-    logger = SummaryWriter(log_dir=log_path)
     START_NOISE_DECAY = 5.
     noise_decay = START_NOISE_DECAY
 
@@ -80,7 +81,7 @@ def main():
             if len(memory) > configs.BATCH_SIZE:
                 for a_i in range(num_agents):
                     samples = memory.sample()
-                    maddpg.update(a_i, samples, logger)
+                    maddpg.update(a_i, samples, None)  # Removed logger from update function
                 maddpg.iter += 1
 
             scores += rewards                        
@@ -97,13 +98,12 @@ def main():
         if ep_best_score > best_score:
             best_score = ep_best_score
         
-        logger.add_scalar('episode_rewards', np.max(scores), i_episode)
+        # Logging with wandb
+        wandb.log({'Episode': i_episode, 'Max Reward': np.max(scores), 'Moving Average': moving_average[-1]})
 
         if i_episode % PRINT_EVERY == 0:
             print('Episodes {:0>4d}-{:0>4d}\tMax Reward: {:.3f}\tMoving Average: {:.3f}\tNoise decay: {:.3f}'.format(
                 i_episode-PRINT_EVERY, i_episode, np.max(scores_all[-PRINT_EVERY:]), moving_average[-1], noise_decay))
-
-            logger.add_scalar(f'mean_episode_rewards', moving_average[-1], i_episode)
 
         # determine if environment is solved and keep best performing models
         if moving_average[-1] >= SOLVED_SCORE:
@@ -124,7 +124,8 @@ def main():
         if noise_decay > 0.020:
             noise_decay = START_NOISE_DECAY / (1. + i_episode)
 
-    logger.close()
+    wandb.finish()  # Close the wandb run
     env.close()
+
 if __name__=='__main__':
     main()

@@ -3,7 +3,7 @@ import torch
 
 from utils import soft_update
 from .ddpg import DDPGAgent
-
+import wandb
 class MADDPG:
     def __init__(self,  config):
         self.config = config
@@ -38,7 +38,7 @@ class MADDPG:
                 actions[:,idx] = agent.actor_target(obs_i)
         return actions
     
-    def update(self, agent_i, sample,logger):
+    def update(self, agent_i, sample,logger=None):
         """update the critics and actors of all the agents """
         obs_all_agents, actions, rewards, next_obs_all_agents, dones = sample
 
@@ -73,10 +73,7 @@ class MADDPG:
 
         al = actor_loss.cpu().detach().item()
         cl = critic_loss.cpu().detach().item()
-        logger.add_scalars(f'agent-{agent_i}/losses',
-                            {'critic loss': cl,
-                            'actor_loss': al},
-                            self.iter)
+        wandb.log({f'agent_{agent_i}_critic_loss': cl, f'agent_{agent_i}_actor_loss': al, 'iteration': self.iter})
 
         soft_update(agent.actor_local, agent.actor_target, self.config.TAU)
 
