@@ -56,7 +56,7 @@ def main():
     # Initialize wandb run
     wandb.init(project="tennis-maddpg", entity="minhna1112")  # Replace 'your_username' with your wandb username
 
-    model_dir= os.getcwd()+"/model_dir"
+    model_dir= os.getcwd()+"/checkpoints"
     os.makedirs(model_dir, exist_ok=True)
     START_NOISE_DECAY = 5.
     noise_decay = START_NOISE_DECAY
