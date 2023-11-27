@@ -14965,6 +14965,41 @@ Score (max over agents) from episode 5: 0.0
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
+<h3 id="Note-that-the-Config()-class-has-the-following-attributes,-which-will-be-passed-as-training-hyper-parameters-to-the-MMDDPG-agents.">Note that the Config() class has the following attributes, which will be passed as training hyper-parameters to the MMDDPG agents.<a class="anchor-link" href="#Note-that-the-Config()-class-has-the-following-attributes,-which-will-be-passed-as-training-hyper-parameters-to-the-MMDDPG-agents.">&#182;</a></h3>
+<pre><code>class Config:
+    def __init__(self):
+        self.action_size = 2
+        self.state_size = 24
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.BUFFER_SIZE = int(1e6)  # replay buffer size
+        self.BATCH_SIZE = 256 # minibatch size
+        self.GAMMA = 0.99           # discount factor
+        self.TAU =  1e-3            # for soft update of target parameters
+        self.LR = 1e-3            # learning rate 
+        self.seed = 100
+        self.num_agents = 2</code></pre>
+
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
 <div class="jp-Cell-inputWrapper">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -14973,133 +15008,129 @@ Score (max over agents) from episode 5: 0.0
 <div class="jp-InputPrompt jp-InputArea-prompt">In&nbsp;[&nbsp;]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
      <div class="CodeMirror cm-s-jupyter">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># main function that sets up environments</span>
-<span class="c1"># perform training loop</span>
-
-<span class="kn">import</span> <span class="nn">os</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">random</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
 
 <span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">wandb</span>  <span class="c1"># Import wandb</span>
+<span class="kn">import</span> <span class="nn">wandb</span>  <span class="c1"># Import wandb for experiment tracking and logging.</span>
 
 <span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">Config</span><span class="p">,</span> <span class="n">ReplayBuffer</span>
 <span class="kn">from</span> <span class="nn">agents</span> <span class="kn">import</span> <span class="n">MADDPG</span> 
 <span class="kn">from</span> <span class="nn">load_env</span> <span class="kn">import</span> <span class="n">env_vars</span>
+
+<span class="c1"># Initialize the Unity environment.</span>
 <span class="c1"># env = UnityEnvironment(file_name="./Tennis_Linux_NoVis/Tennis.x86_64")</span>
-<span class="c1"># get the default brain</span>
+
+<span class="c1"># Get the default brain, which is responsible for decision making in agents.</span>
 <span class="n">brain_name</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">brain_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">brain</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">brains</span><span class="p">[</span><span class="n">brain_name</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"brain name:"</span><span class="p">,</span> <span class="n">brain_name</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"brain:"</span><span class="p">,</span> <span class="n">brain</span><span class="p">)</span>
 
-<span class="c1"># reset the environment</span>
+<span class="c1"># Reset the environment to get the initial state information.</span>
 <span class="n">env_info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">train_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">brain_name</span><span class="p">]</span>
 
-<span class="c1"># number of agents </span>
+<span class="c1"># Number of agents in the environment.</span>
 <span class="n">num_agents</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">env_info</span><span class="o">.</span><span class="n">agents</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">'Number of agents:'</span><span class="p">,</span> <span class="n">num_agents</span><span class="p">)</span>
 
-<span class="c1"># size of each action</span>
+<span class="c1"># Size of action space for each agent.</span>
 <span class="n">action_size</span> <span class="o">=</span> <span class="n">brain</span><span class="o">.</span><span class="n">vector_action_space_size</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">'Size of each action:'</span><span class="p">,</span> <span class="n">action_size</span><span class="p">)</span>
 
-<span class="c1"># examine the state space </span>
+<span class="c1"># Examine the state space for the agents.</span>
 <span class="n">states</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">vector_observations</span>
 <span class="n">state_size</span> <span class="o">=</span> <span class="n">states</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">'There are </span><span class="si">{}</span><span class="s1"> agents. Each observes a state with length: </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">states</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">state_size</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s1">'The state for the first agent looks like:'</span><span class="p">,</span> <span class="n">states</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-<span class="n">LEARN_NUM</span> <span class="o">=</span> <span class="mi">5</span> <span class="c1"># number of learning passes</span>
+<span class="c1"># Training parameters.</span>
+<span class="n">LEARN_NUM</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Number of learning passes per training step.</span>
+<span class="n">n_episodes</span> <span class="o">=</span> <span class="mi">2000</span>  <span class="c1"># Total number of training episodes.</span>
+<span class="n">max_t</span> <span class="o">=</span> <span class="mi">10000</span>  <span class="c1"># Maximum number of timesteps per episode.</span>
 
-
-<span class="n">n_episodes</span><span class="o">=</span><span class="mi">2000</span>
-<span class="n">max_t</span><span class="o">=</span><span class="mi">10000</span>
-
+<span class="c1"># Configuration and agent initialization.</span>
 <span class="n">configs</span> <span class="o">=</span> <span class="n">Config</span><span class="p">()</span>
-<span class="n">maddpg</span> <span class="o">=</span> <span class="n">MADDPG</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
-<span class="n">memory</span> <span class="o">=</span> <span class="n">ReplayBuffer</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>
-<span class="n">scores_window</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">scores_all</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">moving_average</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">best_score</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
-<span class="n">PRINT_EVERY</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">SOLVED_SCORE</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="sd">"""</span>
+<span class="sd">class Config:</span>
+<span class="sd">    def __init__(self):</span>
+<span class="sd">        self.action_size = 2</span>
+<span class="sd">        self.state_size = 24</span>
+<span class="sd">        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")</span>
+<span class="sd">        self.BUFFER_SIZE = int(1e6)  # replay buffer size</span>
+<span class="sd">        self.BATCH_SIZE = 256 # minibatch size</span>
+<span class="sd">        self.GAMMA = 0.99           # discount factor</span>
+<span class="sd">        self.TAU =  1e-3            # for soft update of target parameters</span>
+<span class="sd">        self.LR = 1e-3            # learning rate </span>
+<span class="sd">        self.seed = 100</span>
+<span class="sd">        self.num_agents = 2</span>
+<span class="sd">"""</span>
+<span class="n">maddpg</span> <span class="o">=</span> <span class="n">MADDPG</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>  <span class="c1"># Initialize the MADDPG agents.</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">ReplayBuffer</span><span class="p">(</span><span class="n">configs</span><span class="p">)</span>  <span class="c1"># Replay buffer for storing experiences.</span>
+<span class="n">scores_window</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># Last 100 scores.</span>
+<span class="n">scores_all</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># List to store all scores for each episode.</span>
+<span class="n">moving_average</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Moving average of scores.</span>
+<span class="n">best_score</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>  <span class="c1"># Initialize best score to negative infinity.</span>
+<span class="n">PRINT_EVERY</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Frequency of printing information.</span>
+<span class="n">SOLVED_SCORE</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># Score at which the environment is considered solved.</span>
 
-<span class="c1"># Initialize wandb run</span>
-<span class="n">wandb</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">env_vars</span><span class="o">.</span><span class="n">WANDB_PROJECT_NAME</span><span class="p">,</span> 
-           <span class="n">entity</span><span class="o">=</span><span class="n">env_vars</span><span class="o">.</span><span class="n">WANDB_USER_NAME</span><span class="p">)</span>  <span class="c1"># Replace 'your_username' with your wandb username</span>
+<span class="c1"># Initialize wandb for logging.</span>
+<span class="n">wandb</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">env_vars</span><span class="o">.</span><span class="n">WANDB_PROJECT_NAME</span><span class="p">,</span> <span class="n">entity</span><span class="o">=</span><span class="n">env_vars</span><span class="o">.</span><span class="n">WANDB_USER_NAME</span><span class="p">)</span>
 
-<span class="n">model_dir</span><span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span><span class="o">+</span><span class="s2">"/checkpoints"</span>
+<span class="c1"># Directory for saving model checkpoints.</span>
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">"/checkpoints"</span>
 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">START_NOISE_DECAY</span> <span class="o">=</span> <span class="mf">5.</span>
+
+<span class="c1"># Noise parameters for action exploration.</span>
+<span class="n">START_NOISE_DECAY</span> <span class="o">=</span> <span class="mf">5.0</span>
 <span class="n">noise_decay</span> <span class="o">=</span> <span class="n">START_NOISE_DECAY</span>
 
-<span class="k">for</span> <span class="n">i_episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_episodes</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
-
-    <span class="n">env_info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">train_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">brain_name</span><span class="p">]</span>         
-    <span class="n">maddpg</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
-    <span class="n">states</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">vector_observations</span>          
-    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">states</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">num_agents</span><span class="o">*</span><span class="n">state_size</span><span class="p">))</span>
-    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_agents</span><span class="p">)</span> 
+<span class="c1"># Main training loop.</span>
+<span class="k">for</span> <span class="n">i_episode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_episodes</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">env_info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="n">train_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="n">brain_name</span><span class="p">]</span>  <span class="c1"># Reset the environment at the start of each episode.</span>
+    <span class="n">maddpg</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>  <span class="c1"># Reset noise added to the actions.</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">vector_observations</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_agents</span> <span class="o">*</span> <span class="n">state_size</span><span class="p">))</span>  <span class="c1"># Flatten states for all agents.</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">num_agents</span><span class="p">)</span>  <span class="c1"># Initialize scores for each agent.</span>
 
     <span class="k">for</span> <span class="n">episode_t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_t</span><span class="p">):</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="n">maddpg</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">add_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">noise_decay</span><span class="o">=</span><span class="n">noise_decay</span><span class="p">)</span>
-        <span class="n">env_info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)[</span><span class="n">brain_name</span><span class="p">]</span>         
-        <span class="n">next_states</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">vector_observations</span>        
-        <span class="n">next_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">next_states</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_agents</span><span class="o">*</span><span class="n">state_size</span><span class="p">))</span>
-        <span class="n">rewards</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">rewards</span>                       
-        <span class="n">dones</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">local_done</span>                      
-        <span class="n">actions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">maddpg</span><span class="o">.</span><span class="n">act</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">add_noise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">noise_decay</span><span class="o">=</span><span class="n">noise_decay</span><span class="p">)</span>  <span class="c1"># Agent action with noise for exploration.</span>
+        <span class="n">env_info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">actions</span><span class="p">)[</span><span class="n">brain_name</span><span class="p">]</span>  <span class="c1"># Send actions to the environment and receive results.</span>
+        <span class="n">next_states</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">vector_observations</span>
+        <span class="n">next_states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">next_states</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_agents</span> <span class="o">*</span> <span class="n">state_size</span><span class="p">))</span>  <span class="c1"># Flatten next states.</span>
+        <span class="n">rewards</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">rewards</span>  <span class="c1"># Get rewards.</span>
+        <span class="n">dones</span> <span class="o">=</span> <span class="n">env_info</span><span class="o">.</span><span class="n">local_done</span>  <span class="c1"># Check for episode termination.</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Reshape actions.</span>
+
+        <span class="c1"># Store experiences in replay buffer.</span>
         <span class="n">memory</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">rewards</span><span class="p">,</span> <span class="n">next_states</span><span class="p">,</span> <span class="n">dones</span><span class="p">)</span>
+
+        <span class="c1"># Learn if enough samples are available in the memory.</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">memory</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">configs</span><span class="o">.</span><span class="n">BATCH_SIZE</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">a_i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_agents</span><span class="p">):</span>
                 <span class="n">samples</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
-                <span class="n">maddpg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">a_i</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Removed logger from update function</span>
+                <span class="n">maddpg</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">a_i</span><span class="p">,</span> <span class="n">samples</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># Update agents.</span>
             <span class="n">maddpg</span><span class="o">.</span><span class="n">iter</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="n">scores</span> <span class="o">+=</span> <span class="n">rewards</span>                        
-        <span class="n">states</span> <span class="o">=</span> <span class="n">next_states</span>                             
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dones</span><span class="p">):</span>                                 
+        <span class="n">scores</span> <span class="o">+=</span> <span class="n">rewards</span>  <span class="c1"># Update the score with rewards.</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="n">next_states</span>  <span class="c1"># Transition to the next state.</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dones</span><span class="p">):</span>  <span class="c1"># Exit loop if episode ends.</span>
             <span class="k">break</span>
-    
+
+    <span class="c1"># Record episode statistics.</span>
     <span class="n">ep_best_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
     <span class="n">scores_window</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ep_best_score</span><span class="p">)</span>
     <span class="n">scores_all</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ep_best_score</span><span class="p">)</span>
     <span class="n">moving_average</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores_window</span><span class="p">))</span>
 
-    <span class="c1"># save best score                        </span>
+    <span class="c1"># Save best score.</span>
     <span class="k">if</span> <span class="n">ep_best_score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
         <span class="n">best_score</span> <span class="o">=</span> <span class="n">ep_best_score</span>
-    
-    <span class="c1"># Logging with wandb</span>
-    <span class="n">wandb</span><span class="o">.</span><span class="n">log</span><span class="p">({</span><span class="s1">'Episode'</span><span class="p">:</span> <span class="n">i_episode</span><span class="p">,</span> <span class="s1">'Max Reward'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span> <span class="s1">'Moving Average'</span><span class="p">:</span> <span class="n">moving_average</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]})</span>
 
-    <span class="k">if</span> <span class="n">i_episode</span> <span class="o">%</span> <span class="n">PRINT_EVERY</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'Episodes </span><span class="si">{:0&gt;4d}</span><span class="s1">-</span><span class="si">{:0&gt;4d}</span><span class="se">\t</span><span class="s1">Max Reward: </span><span class="si">{:.3f}</span><span class="se">\t</span><span class="s1">Moving Average: </span><span class="si">{:.3f}</span><span class="se">\t</span><span class="s1">Noise decay: </span><span class="si">{:.3f}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">i_episode</span><span class="o">-</span><span class="n">PRINT_EVERY</span><span class="p">,</span> <span class="n">i_episode</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">scores_all</span><span class="p">[</span><span class="o">-</span><span class="n">PRINT_EVERY</span><span class="p">:]),</span> <span class="n">moving_average</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">noise_decay</span><span class="p">))</span>
-
-    <span class="c1"># determine if environment is solved and keep best performing models</span>
-    <span class="k">if</span> <span class="n">moving_average</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">SOLVED_SCORE</span><span class="p">:</span>
-        <span class="c1">#saving model</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">'Episode </span><span class="si">{:0&gt;4d}</span><span class="se">\t</span><span class="s1">Max Reward: </span><span class="si">{:.3f}</span><span class="se">\t</span><span class="s1">Moving Average: </span><span class="si">{:.3f}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-            <span class="n">i_episode</span><span class="p">,</span> <span class="n">ep_best_score</span><span class="p">,</span> <span class="n">moving_average</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
-        <span class="n">save_dict_list</span> <span class="o">=</span><span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_agents</span><span class="p">):</span>
-            <span class="n">save_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'actor_params'</span> <span class="p">:</span> <span class="n">maddpg</span><span class="o">.</span><span class="n">maddpg_agent</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">actor_local</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
-                            <span class="s1">'actor_optim_params'</span><span class="p">:</span> <span class="n">maddpg</span><span class="o">.</span><span class="n">maddpg_agent</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">actor_optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
-                            <span class="s1">'critic_params'</span> <span class="p">:</span> <span class="n">maddpg</span><span class="o">.</span><span class="n">maddpg_agent</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">critic_local</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>
-                            <span class="s1">'critic_optim_params'</span> <span class="p">:</span> <span class="n">maddpg</span><span class="o">.</span><span class="n">maddpg_agent</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">critic_optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()}</span>
-            <span class="n">save_dict_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">save_dict</span><span class="p">)</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_dict_list</span><span class="p">,</span> 
-                        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="s1">'episode-</span><span class="si">{}</span><span class="s1">.pt'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i_episode</span><span class="p">)))</span>
-        <span class="k">break</span>
-
-    <span class="k">if</span> <span class="n">noise_decay</span> <span class="o">&gt;</span> <span class="mf">0.020</span><span class="p">:</span>
-        <span class="n">noise_decay</span> <span class="o">=</span> <span class="n">START_NOISE_DECAY</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.</span> <span class="o">+</span> <span class="n">i_episode</span><span class="p">)</span>
-
-<span class="n">wandb</span><span class="o">.</span><span class="n">finish</span><span class="p">()</span>  <span class="c1"># Close the wandb run</span>
+    <span class="c1">#</span>
 </pre></div>
 
      </div>
